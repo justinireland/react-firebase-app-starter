@@ -1,26 +1,39 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from 'react'
+import { Switch, Redirect, Route, Router, useHistory } from 'react-router-dom'
+import { makeStyles, MuiThemeProvider } from '@material-ui/core/styles'
+import { useSelector } from 'react-redux'
+import AppBar from './components/common/AppBar'
+import Login from './components/views/Login'
+import theme from './theme'
 
-function App() {
+const useStyles = makeStyles(theme => ({  
+  appWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center'    
+  }
+}))
+
+export default function App() {
+  const classes = useStyles()
+  let history = useHistory()
+  const { Authentication } = useSelector(state => state)
+  const { authenticated } = Authentication
+
+  useEffect(() => {
+    !authenticated && <Redirect to="/login" />
+  }, [authenticated])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <MuiThemeProvider theme={theme}> 
+      <div id="App" className={classes.appWrapper}>
+        <Router history={history}> 
+          { authenticated ? <AppBar /> : null }                               
+          <Switch>
+            <Route exact path='/login' component={Login} />                                
+          </Switch>           
+        </Router>        
+      </div>      
+    </MuiThemeProvider>            
+  )
 }
-
-export default App;
